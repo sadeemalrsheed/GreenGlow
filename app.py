@@ -15,7 +15,13 @@ from flask_apscheduler import APScheduler
 from data import disease_map, details_map
 
 import serial
-arduino = serial.Serial('COM3', 9600)  # change 'COM3' if needed
+def get_arduino():
+    try:
+        return serial.Serial('COM3', 9600, timeout=2)
+    except serial.SerialException as e:
+        print("Error opening serial port:", e)
+        return None
+
 
 
 if not os.path.exists('model.h5'):
@@ -227,14 +233,25 @@ def basil():
 
 @app.route('/device')
 def device_status():
-    arduino.write(b'READ\n')
-    data = arduino.readline().decode().strip()
-    return render_template('device.html', moisture=data)
+    arduino = get_arduino()
+    if arduino:
+        arduino.write(b'READ\n')
+        data = arduino.readline().decode().strip()
+        arduino.close()
+        return render_template('device.html', moisture=data)
+    else:
+        return render_template('device.html', moisture="Could not connect to device")
 
 @app.route('/water', methods=['POST'])
 def water():
-    arduino.write(b'WATER\n')
-    return ('', 204)
+    arduino = get_arduino()
+    if arduino:
+        arduino.write(b'WATER\n')
+        arduino.close()
+        return ('', 204)
+    else:
+        return ("Could not connect to device", 500)
+
 
 
 @app.route('/favicon.ico')
