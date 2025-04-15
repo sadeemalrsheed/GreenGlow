@@ -2,35 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Green Glow | Device</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Green Glow Device</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    function updateMoisture() {
-      fetch('/device-moisture')
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('moisture').innerText = data;
-        })
-        .catch(error => {
-          document.getElementById('moisture').innerText = "Sensor Error";
-        });
-    }
-
-    setInterval(updateMoisture, 2000); // Update every 2 seconds
-    window.onload = updateMoisture;   // First call on page load
-  </script>
 </head>
-<body class="bg-green-100 h-screen flex items-center justify-center">
-  <div class="bg-white p-8 rounded-2xl shadow-lg text-center">
-    <h1 class="text-3xl font-bold text-green-700 mb-4">Green Glow 🌱</h1>
-    <p class="text-lg mb-4">Soil Moisture: <span id="moisture" class="font-semibold">Reading From the Sensor ...</span></p>
-    
-    <form action="/water" method="POST">
-      <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition">
+<body class="bg-green-50 flex justify-center items-center h-screen">
+  <div class="bg-white shadow-lg rounded-2xl p-10 text-center space-y-6 w-full max-w-md">
+    <h1 class="text-3xl font-bold text-green-700">Green Glow 🌱</h1>
+    <p class="text-lg text-gray-700">
+      Soil Moisture: <span id="moisture" class="font-semibold text-green-800">Reading...</span>
+    </p>
+    <form method="POST" action="/water">
+      <button class="bg-green-500 text-white px-6 py-3 rounded-full text-lg hover:bg-green-600 transition">
         💧 Water Plant
       </button>
     </form>
   </div>
+
+  <script>
+    function updateMoisture() {
+      fetch('/device')  // this route should return the moisture value only
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('moisture').innerText = data;
+        })
+        .catch(() => {
+          document.getElementById('moisture').innerText = 'Error reading sensor';
+        });
+    }
+
+    // Call every 2 seconds
+    setInterval(updateMoisture, 2000);
+
+    // Call once immediately on page load
+    updateMoisture();
+  </script>
 </body>
 </html>
+
 

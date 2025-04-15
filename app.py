@@ -233,14 +233,14 @@ def basil():
 
 @app.route('/device')
 def device_status():
-    arduino = get_arduino()
-    if arduino:
-        arduino.write(b'READ\n')
-        data = arduino.readline().decode().strip()
-        arduino.close()
-        return render_template('device.html', moisture=data)
-    else:
-        return render_template('device.html', moisture="Could not connect to device")
+    arduino.write(b'READ\n')
+    data = arduino.readline().decode().strip()
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return data  # just return the value for AJAX refresh
+
+    return render_template('device.html', moisture=data)
+
 
 @app.route('/device-moisture')
 def get_moisture():
