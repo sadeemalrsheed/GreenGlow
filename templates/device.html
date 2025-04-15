@@ -10,36 +10,31 @@
     <h1>🌱 Green Glow</h1>
     <p>Soil Moisture: <strong id="moisture">Reading From the Sensor ...</strong></p>
     
-    <button id="waterBtn" class="btn-green" onclick="waterPlant()">
-      💧 Water Plant
-    </button>
+    <form method="POST" action="/water">
+      <button type="submit" class="btn-green">
+        💧 Water Plant
+      </button>
+    </form>
   </div>
 
   <script>
     function updateMoisture() {
-      fetch('/device', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      fetch('/device-moisture')  // New route for reading moisture only
         .then(response => response.text())
         .then(data => {
-          document.getElementById('moisture').innerText = data;
+          document.getElementById('moisture').innerText = data + '%';
         })
         .catch(() => {
-          document.getElementById('moisture').innerText = 'Error reading sensor';
+          document.getElementById('moisture').innerText = 'Sensor Error';
         });
     }
 
-    function waterPlant() {
-      fetch('/water', {
-        method: 'POST'
-      }).then(() => {
-        alert("Water command sent! 💧");
-      });
-    }
-
-    setInterval(updateMoisture, 2000);  // Every 2 seconds
-    updateMoisture();  // First run on load
+    setInterval(updateMoisture, 2000);  // Auto-update every 2 seconds
+    updateMoisture();  // Run once on page load
   </script>
 </body>
 </html>
+
 
 
 
