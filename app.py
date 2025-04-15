@@ -242,6 +242,17 @@ def device_status():
     else:
         return render_template('device.html', moisture="Could not connect to device")
 
+@app.route('/device-moisture')
+def get_moisture():
+    arduino = get_arduino()
+    if arduino:
+        arduino.write(b'READ\n')
+        data = arduino.readline().decode().strip()
+        arduino.close()
+        return data
+    else:
+        return "Sensor Not Connected"
+
 @app.route('/water', methods=['POST'])
 def water():
     arduino = get_arduino()

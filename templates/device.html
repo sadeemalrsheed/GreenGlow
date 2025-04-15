@@ -1,16 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Green Glow</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <title>Green Glow | Device</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function updateMoisture() {
+      fetch('/device-moisture')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('moisture').innerText = data;
+        })
+        .catch(error => {
+          document.getElementById('moisture').innerText = "Sensor Error";
+        });
+    }
+
+    setInterval(updateMoisture, 2000); // Update every 2 seconds
+    window.onload = updateMoisture;   // First call on page load
+  </script>
 </head>
-<body>
-  <div class="container">
-    <h1>Green Glow 🌱</h1>
-    <p>Soil Moisture: <strong>{{ moisture }}</strong></p>
-    <form action="/water" method="post">
-      <button type="submit">💧 Water Plant</button>
+<body class="bg-green-100 h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-2xl shadow-lg text-center">
+    <h1 class="text-3xl font-bold text-green-700 mb-4">Green Glow 🌱</h1>
+    <p class="text-lg mb-4">Soil Moisture: <span id="moisture" class="font-semibold">Reading From the Sensor ...</span></p>
+    
+    <form action="/water" method="POST">
+      <button type="submit" class="bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition">
+        💧 Water Plant
+      </button>
     </form>
   </div>
 </body>
 </html>
+
