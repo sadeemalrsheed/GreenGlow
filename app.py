@@ -230,19 +230,19 @@ def oregano():
 @app.route('/basil')
 def basil():
     return render_template('Basil.html')
-
 @app.route('/device')
 def device_status():
-    arduino = get_arduino()  # open the Arduino safely
+    arduino = get_arduino()
     if arduino:
         arduino.write(b'READ\n')
         data = arduino.readline().decode().strip()
     else:
-        data = "Arduino not connected"
+        data = "Sensor not connected"
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return data
     return render_template('device.html', moisture=data)
+
 
 
 @app.route('/device-moisture')
@@ -258,10 +258,11 @@ def get_moisture():
 
 @app.route('/water', methods=['POST'])
 def water():
-    arduino = get_arduino()  # open Arduino again
+    arduino = get_arduino()
     if arduino:
         arduino.write(b'WATER\n')
     return ('', 204)
+
 
 
 @app.route('/favicon.ico')

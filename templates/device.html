@@ -1,27 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Green Glow Device</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="bg-green-50 flex justify-center items-center h-screen">
-  <div class="bg-white shadow-lg rounded-2xl p-10 text-center space-y-6 w-full max-w-md">
-    <h1 class="text-3xl font-bold text-green-700">Green Glow 🌱</h1>
-    <p class="text-lg text-gray-700">
-      Soil Moisture: <span id="moisture" class="font-semibold text-green-800">Reading...</span>
-    </p>
-    <form method="POST" action="/water">
-      <button class="bg-green-500 text-white px-6 py-3 rounded-full text-lg hover:bg-green-600 transition">
-        💧 Water Plant
-      </button>
-    </form>
+<body style="background-color: #e6ffee;">
+  <div class="device-box">
+    <h1>🌱 Green Glow</h1>
+    <p>Soil Moisture: <strong id="moisture">Reading From the Sensor ...</strong></p>
+    
+    <button id="waterBtn" class="btn-green" onclick="waterPlant()">
+      💧 Water Plant
+    </button>
   </div>
 
   <script>
     function updateMoisture() {
-      fetch('/device')  // this route should return the moisture value only
+      fetch('/device', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(response => response.text())
         .then(data => {
           document.getElementById('moisture').innerText = data;
@@ -31,13 +27,19 @@
         });
     }
 
-    // Call every 2 seconds
-    setInterval(updateMoisture, 2000);
+    function waterPlant() {
+      fetch('/water', {
+        method: 'POST'
+      }).then(() => {
+        alert("Water command sent! 💧");
+      });
+    }
 
-    // Call once immediately on page load
-    updateMoisture();
+    setInterval(updateMoisture, 2000);  // Every 2 seconds
+    updateMoisture();  // First run on load
   </script>
 </body>
 </html>
+
 
 
