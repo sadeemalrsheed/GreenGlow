@@ -235,7 +235,6 @@ def get_arduino():
 @app.route('/device')
 def device_status():
     return render_template('device.html')  # Just load the page normally
-
 @app.route('/device-moisture')
 def get_moisture():
     arduino = get_arduino()
@@ -244,10 +243,23 @@ def get_moisture():
             arduino.write(b'READ\n')
             data = arduino.readline().decode().strip()
             arduino.close()
-            return data  # Just return the value only (not HTML)
+
+            # Optional auto-watering logic
+            try:
+                moisture = int(data.replace('%', '').strip())
+                if moisture < 20:
+                    arduino = get_arduino()
+                    if arduino:
+                        arduino.write(b'WATER\n')
+                        arduino.close()
+            except:
+                pass
+
+            return data  # Return only the moisture string
         except:
             return "Sensor Error"
     return "Sensor Not Connected"
+
 
 @app.route('/water', methods=['POST'])
 def water():
@@ -258,6 +270,7 @@ def water():
         return ('', 204)
     else:
         return ("Could not connect to device", 500)
+
 
 @app.route('/favicon.ico')
 
