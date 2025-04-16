@@ -244,10 +244,11 @@ def get_moisture():
             arduino.write(b'READ\n')
             data = arduino.readline().decode().strip()
             arduino.close()
-            return data  # Just return the moisture value (e.g., "25")
+            return str(data)
         except:
             return "Sensor Error"
     return "Sensor Not Connected"
+
 
 
 @app.route('/water', methods=['POST'])

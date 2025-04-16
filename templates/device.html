@@ -9,80 +9,72 @@
       background-color: #e6ffee;
       font-family: Arial, sans-serif;
       text-align: center;
-      margin-top: 100px;
+      padding: 40px;
     }
+
     .device-box {
       background: white;
       padding: 40px;
       border-radius: 20px;
-      width: 400px;
+      max-width: 500px;
       margin: auto;
       box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
+
     h1 {
-      font-size: 2.5em;
+      font-size: 2.5rem;
     }
+
     .btn-green {
       background-color: #4CAF50;
       color: white;
-      padding: 14px 28px;
-      font-size: 16px;
       border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
       border-radius: 15px;
-      cursor: pointer;
       margin-top: 20px;
+      cursor: pointer;
     }
+
     .btn-green:hover {
       background-color: #45a049;
-    }
-    #moisture {
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="device-box">
     <h1>🌱 Green Glow</h1>
-    <p>Soil Moisture: <strong id="moisture">Reading From the Sensor ...</strong></p>
-    
+    <p>Soil Moisture: <strong id="moisture">Reading From the Sensor...</strong></p>
+
     <button id="waterBtn" class="btn-green" onclick="waterPlant()">
       💧 Water Plant
     </button>
   </div>
 
   <script>
-    let alreadyWatered = false;
-
     function updateMoisture() {
       fetch('/device-moisture')
         .then(response => response.text())
         .then(data => {
-          const moistureEl = document.getElementById('moisture');
-          const moistureVal = parseInt(data);
-          if (!isNaN(moistureVal)) {
-            moistureEl.innerText = moistureVal + '%';
+          const percent = parseInt(data);
+          document.getElementById('moisture').innerText = isNaN(percent) ? data : percent + '%';
 
-            // Only water automatically once if moisture < 3%
-            if (moistureVal < 3 && !alreadyWatered) {
-              alreadyWatered = true;
-              fetch('/water', { method: 'POST' });
-              console.log("💧 Auto-watering triggered because moisture < 3%");
-              setTimeout(() => { alreadyWatered = false }, 30000);  // allow auto-watering again after 30s
-            }
-          } else {
-            moistureEl.innerText = 'Sensor Error';
+          // Auto-water only if moisture is valid and less than 3
+          if (!isNaN(percent) && percent < 3) {
+            fetch('/water', { method: 'POST' });
           }
         })
         .catch(() => {
-          document.getElementById('moisture').innerText = 'Error reading sensor';
+          document.getElementById('moisture').innerText = 'Sensor Error';
         });
     }
 
     function waterPlant() {
-      fetch('/water', { method: 'POST' })
-        .then(() => {
-          alert("💧 Watering started!");
-        });
+      fetch('/water', {
+        method: 'POST'
+      }).then(() => {
+        alert("Water command sent! 💧");
+      });
     }
 
     setInterval(updateMoisture, 2000);
