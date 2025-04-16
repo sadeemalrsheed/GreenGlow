@@ -244,16 +244,17 @@ def get_moisture():
             arduino.write(b'READ\n')
             data = arduino.readline().decode().strip()
             arduino.close()
+
+            print("Arduino said:", data)  # 🧪 Add this to debug
+
             if data.isdigit():
-                return data  # ✅ Return clean number (like 41)
+                return f"{data}%"
             else:
                 return "Sensor Error"
-        except:
+        except Exception as e:
+            print("Reading error:", e)
             return "Sensor Error"
     return "Sensor Not Connected"
-
-
-
 
 
 @app.route('/water', methods=['POST'])
