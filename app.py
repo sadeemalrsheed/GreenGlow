@@ -235,6 +235,7 @@ def get_arduino():
 @app.route('/device')
 def device_status():
     return render_template('device.html')  # Just load the page normally
+
 @app.route('/device-moisture')
 def get_moisture():
     arduino = get_arduino()
@@ -243,17 +244,25 @@ def get_moisture():
             arduino.write(b'READ\n')
             data = arduino.readline().decode().strip()
             arduino.close()
-
-            print("Arduino said:", data)  # Optional debug
+            print("Arduino sent:", data)
 
             if data.isdigit():
-                return f"{data}%"
+                percent = int(data)
+                
+                # 🚨 AUTO WATER ONLY IF ≤ 1%
+                if percent <= 1:
+                    arduino = get_arduino()
+                    if arduino:
+                        arduino.write(b'WATER\n')
+                        arduino.close()
+                
+                return f"{percent}%"
             else:
-                return ""  # ❌ no error message shown to user
-        except Exception as e:
-            print("Reading error:", e)
-            return ""  # ❌ no error message shown to user
-    return ""  # ❌ no error message shown to user
+                return ""
+        except:
+            return ""
+    return ""
+
 
 
 
