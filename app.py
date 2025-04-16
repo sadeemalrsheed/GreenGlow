@@ -259,11 +259,12 @@ def get_moisture():
 def water():
     arduino = get_arduino()
     if arduino:
-        arduino.write(b'WATER\n')  # Tell Arduino to start watering
-        time.sleep(2)              # Let it run for 2 seconds
-        arduino.write(b'STOP\n')   # Tell Arduino to stop watering
+        arduino.write(b'WATER\n')
         arduino.close()
-    return ('', 204)
+        return ('', 204)
+    else:
+        return ("Could not connect to device", 500)
+
 
 
 @app.route('/favicon.ico')
