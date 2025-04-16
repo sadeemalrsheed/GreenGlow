@@ -14,13 +14,6 @@ from flask_apscheduler import APScheduler
 
 from data import disease_map, details_map
 
-import serial
-def get_arduino():
-    try:
-        return serial.Serial('COM3', 9600, timeout=2)
-    except serial.SerialException as e:
-        print("Error opening serial port:", e)
-        return None
 
 
 
@@ -231,18 +224,31 @@ def oregano():
 def basil():
     return render_template('Basil.html')
 
+def get_arduino():
+    try:
+        return serial.Serial('COM3', 9600, timeout=2)
+    except serial.SerialException as e:
+        print("Error opening serial port:", e)
+        return None
+
+app = Flask(__name__)
+
 @app.route('/device')
 def device_status():
+    return render_template('device.html')  # Just load the page normally
+
+@app.route('/device-moisture')
+def get_moisture():
     arduino = get_arduino()
     if arduino:
-        arduino.write(b'READ\n')
-        data = arduino.readline().decode().strip()
-        arduino.close()
-        return render_template('device.html', moisture=data)
-    else:
-        return render_template('device.html', moisture="Could not connect to device")
-
-
+        try:
+            arduino.write(b'READ\n')
+            data = arduino.readline().decode().strip()
+            arduino.close()
+            return data  # Just return the value only (not HTML)
+        except:
+            return "Sensor Error"
+    return "Sensor Not Connected"
 
 @app.route('/water', methods=['POST'])
 def water():
@@ -253,8 +259,6 @@ def water():
         return ('', 204)
     else:
         return ("Could not connect to device", 500)
-
-
 
 @app.route('/favicon.ico')
 

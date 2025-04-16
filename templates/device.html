@@ -9,28 +9,40 @@
   <div class="device-box">
     <h1>🌱 Green Glow</h1>
     <p>Soil Moisture: <strong id="moisture">Reading From the Sensor ...</strong></p>
-    
-    <form method="POST" action="/water">
-      <button type="submit" class="btn-green">
-        💧 Water Plant
-      </button>
-    </form>
+
+    <button id="waterBtn" class="btn-green" onclick="waterPlant()">
+      💧 Water Plant
+    </button>
   </div>
 
   <script>
     function updateMoisture() {
-      fetch('/device-moisture')  // New route for reading moisture only
+      fetch('/device-moisture')
         .then(response => response.text())
         .then(data => {
-          document.getElementById('moisture').innerText = data + '%';
+          document.getElementById('moisture').innerText = data + "%";
+
+          // Auto water if under 20%
+          const value = parseInt(data);
+          if (!isNaN(value) && value < 20) {
+            waterPlant();
+          }
         })
         .catch(() => {
-          document.getElementById('moisture').innerText = 'Sensor Error';
+          document.getElementById('moisture').innerText = "Sensor error";
         });
     }
 
-    setInterval(updateMoisture, 2000);  // Auto-update every 2 seconds
-    updateMoisture();  // Run once on page load
+    function waterPlant() {
+      fetch('/water', { method: 'POST' })
+        .then(() => {
+          console.log("Watering...");
+        });
+    }
+
+    // Start updating moisture every 2s
+    setInterval(updateMoisture, 2000);
+    updateMoisture(); // Run once on load
   </script>
 </body>
 </html>
