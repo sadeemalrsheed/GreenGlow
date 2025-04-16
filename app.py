@@ -231,7 +231,6 @@ def get_arduino():
         print("Error opening serial port:", e)
         return None
 
-app = Flask(__name__)
 
 @app.route('/device')
 def device_status():
