@@ -235,7 +235,6 @@ def get_arduino():
 @app.route('/device')
 def device_status():
     return render_template('device.html')  # Just load the page normally
-
 @app.route('/device-moisture')
 def get_moisture():
     arduino = get_arduino()
@@ -244,40 +243,24 @@ def get_moisture():
             arduino.write(b'READ\n')
             data = arduino.readline().decode().strip()
             arduino.close()
-            print("Arduino sent:", data)
 
             if data.isdigit():
-                percent = int(data)
-                
-                # 🚨 AUTO WATER ONLY IF ≤ 1%
-                if percent <= 1:
-                    arduino = get_arduino()
-                    if arduino:
-                        arduino.write(b'WATER\n')
-                        arduino.close()
-                
-                return f"{percent}%"
-            else:
-                return ""
+                return f"{data}%"  # Send % to the frontend
         except:
             return ""
     return ""
-
-
 
 
 @app.route('/water', methods=['POST'])
 def water():
     arduino = get_arduino()
     if arduino:
-        try:
-            arduino.write(b'WATER\n')
-            arduino.close()
-            return '', 204
-        except:
-            return "Error writing to Arduino", 500
+        arduino.write(b'WATER\n')
+        arduino.close()
+        return ('', 204)
     else:
-        return "Could not connect to device", 500
+        return ("Could not connect to device", 500)
+
 
 
 

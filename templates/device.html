@@ -9,8 +9,8 @@
   <div class="device-box">
     <h1>🌱 Green Glow</h1>
     <p>Soil Moisture: <strong id="moisture">Reading From the Sensor ...</strong></p>
-    
-    <button id="waterBtn" class="btn-green" onclick="waterPlant()">
+
+    <button class="btn-green" onclick="waterPlant()">
       💧 Water Plant
     </button>
   </div>
@@ -18,23 +18,25 @@
   <script>
     function updateMoisture() {
       fetch('/device-moisture')
-        .then(response => response.text())
+        .then(res => res.text())
         .then(data => {
           if (data) {
-            document.getElementById('moisture').innerText = data;
+            document.getElementById("moisture").innerText = data;
           }
         });
     }
 
     function waterPlant() {
-      fetch('/water', { method: 'POST' });
+      fetch('/water', { method: 'POST' })
+        .then(() => alert("Watering initiated 💧"));
     }
 
-    setInterval(updateMoisture, 2000);
+    setInterval(updateMoisture, 2000);  // Read every 2 seconds
     updateMoisture();
   </script>
 </body>
 </html>
+
 
 
 
