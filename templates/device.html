@@ -2,37 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Green Glow Device</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>Green Glow</title>
+  <style>
+    body {
+      background-color: #e6ffee;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    .box {
+      background-color: white;
+      padding: 40px;
+      border-radius: 20px;
+      display: inline-block;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+    #moisture {
+      font-weight: bold;
+      color: #222;
+    }
+    .btn {
+      background-color: #4CAF50;
+      color: white;
+      font-size: 18px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 12px;
+      margin-top: 25px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #3da942;
+    }
+  </style>
 </head>
-<body style="background-color: #e6ffee;">
-  <div class="device-box">
+<body>
+  <div class="box">
     <h1>🌱 Green Glow</h1>
-    <p>Soil Moisture: <strong id="moisture">Reading From the Sensor ...</strong></p>
+    <p>Soil Moisture: <span id="moisture">Reading From the Sensor ...</span></p>
 
-    <button class="btn-green" onclick="waterPlant()">
-      💧 Water Plant
-    </button>
+    <button class="btn" onclick="waterPlant()">💧 Water Plant</button>
   </div>
 
   <script>
     function updateMoisture() {
       fetch('/device-moisture')
-        .then(res => res.text())
+        .then(response => response.text())
         .then(data => {
-          if (data) {
-            document.getElementById("moisture").innerText = data;
+          if (data && data !== "Sensor Error" && data !== "Sensor Not Connected") {
+            document.getElementById('moisture').innerText = data;
           }
+        })
+        .catch(err => {
+          console.log("Sensor fetch failed:", err);
         });
     }
 
     function waterPlant() {
       fetch('/water', { method: 'POST' })
-        .then(() => alert("Watering initiated 💧"));
+        .then(() => {
+          alert("Watering the plant 💧");
+        });
     }
 
-    setInterval(updateMoisture, 2000);  // Read every 2 seconds
-    updateMoisture();
+    setInterval(updateMoisture, 2000);  // Auto-refresh every 2 sec
+    updateMoisture();  // First load
   </script>
 </body>
 </html>

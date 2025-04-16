@@ -235,20 +235,26 @@ def get_arduino():
 @app.route('/device')
 def device_status():
     return render_template('device.html')  # Just load the page normally
+
 @app.route('/device-moisture')
 def get_moisture():
-    arduino = get_arduino()
-    if arduino:
-        try:
-            arduino.write(b'READ\n')
-            data = arduino.readline().decode().strip()
-            arduino.close()
+    try:
+        arduino = serial.Serial('COM3', 9600, timeout=2)
+        arduino.write(b'READ\n')
+        time.sleep(1)  # give Arduino time to respond
+        data = arduino.readline().decode().strip()
+        arduino.close()
 
-            if data.isdigit():
-                return f"{data}%"  # Send % to the frontend
-        except:
+        print("Moisture received:", data)  # For debug
+
+        if data.isdigit():
+            return f"{data}%"
+        else:
             return ""
-    return ""
+    except Exception as e:
+        print("Error reading from Arduino:", e)
+        return ""
+
 
 
 @app.route('/water', methods=['POST'])
