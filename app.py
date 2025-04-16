@@ -244,10 +244,14 @@ def get_moisture():
             arduino.write(b'READ\n')
             data = arduino.readline().decode().strip()
             arduino.close()
-            return data
+            if data.isdigit():
+                return data  # ✅ Return clean number (like 41)
+            else:
+                return "Sensor Error"
         except:
             return "Sensor Error"
     return "Sensor Not Connected"
+
 
 
 
