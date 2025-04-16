@@ -4,8 +4,43 @@
   <meta charset="UTF-8">
   <title>Green Glow Device</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      background-color: #e6ffee;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 100px;
+    }
+    .device-box {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      width: 400px;
+      margin: auto;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 2.5em;
+    }
+    .btn-green {
+      background-color: #4CAF50;
+      color: white;
+      padding: 14px 28px;
+      font-size: 16px;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .btn-green:hover {
+      background-color: #45a049;
+    }
+    #moisture {
+      font-weight: bold;
+    }
+  </style>
 </head>
-<body style="background-color: #e6ffee;">
+<body>
   <div class="device-box">
     <h1>🌱 Green Glow</h1>
     <p>Soil Moisture: <strong id="moisture">Reading From the Sensor ...</strong></p>
@@ -17,10 +52,16 @@
 
   <script>
     function updateMoisture() {
-      fetch('/device-moisture')  // Not /device anymore
+      fetch('/device-moisture')
         .then(response => response.text())
         .then(data => {
           document.getElementById('moisture').innerText = data + '%';
+
+          // Auto-water only if moisture is below 20%
+          const moistureValue = parseInt(data);
+          if (!isNaN(moistureValue) && moistureValue < 20) {
+            fetch('/water', { method: 'POST' });
+          }
         })
         .catch(() => {
           document.getElementById('moisture').innerText = 'Error reading sensor';
@@ -30,18 +71,16 @@
     function waterPlant() {
       fetch('/water', { method: 'POST' })
         .then(() => {
-          alert("Water command sent! 💧");
-        })
-        .catch(() => {
-          alert("Failed to send water command.");
+          alert("💧 Watering started!");
         });
     }
 
-    setInterval(updateMoisture, 2000); // update every 2 secs
-    updateMoisture(); // initial call
+    setInterval(updateMoisture, 2000);
+    updateMoisture();
   </script>
 </body>
 </html>
+
 
 
 
