@@ -44,23 +44,28 @@
 <body>
   <div class="device-box">
     <h1>🌱 Green Glow</h1>
-    <p>Soil Moisture: <strong id="moisture">Reading From the Sensor...</strong></p>
+    <p>Soil Moisture: <strong id="moisture">Reading...</strong></p>
 
-    <button id="waterBtn" class="btn-green" onclick="waterPlant()">
+    <button id="waterBtn" class="btn-green" onclick="manualWater()">
       💧 Water Plant
     </button>
   </div>
 
   <script>
+    let lastAutoWaterTime = 0;
+
     function updateMoisture() {
       fetch('/device-moisture')
         .then(response => response.text())
         .then(data => {
-          const percent = parseInt(data);
-          document.getElementById('moisture').innerText = isNaN(percent) ? data : percent + '%';
+          const moistureValue = parseInt(data);
+          const moistureText = isNaN(moistureValue) ? data : `${moistureValue}%`;
+          document.getElementById('moisture').innerText = moistureText;
 
-          // Auto-water only if moisture is valid and less than 3
-          if (!isNaN(percent) && percent < 3) {
+          const now = Date.now();
+
+          if (!isNaN(moistureValue) && moistureValue < 3 && now - lastAutoWaterTime > 10000) {
+            lastAutoWaterTime = now;
             fetch('/water', { method: 'POST' });
           }
         })
@@ -69,19 +74,20 @@
         });
     }
 
-    function waterPlant() {
-      fetch('/water', {
-        method: 'POST'
-      }).then(() => {
-        alert("Water command sent! 💧");
-      });
+    function manualWater() {
+      fetch('/water', { method: 'POST' })
+        .then(() => {
+          alert("Water command sent! 💧");
+        });
     }
 
+    // Start
     setInterval(updateMoisture, 2000);
     updateMoisture();
   </script>
 </body>
 </html>
+
 
 
 

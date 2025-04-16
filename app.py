@@ -244,10 +244,11 @@ def get_moisture():
             arduino.write(b'READ\n')
             data = arduino.readline().decode().strip()
             arduino.close()
-            return str(data)
+            return data
         except:
             return "Sensor Error"
     return "Sensor Not Connected"
+
 
 
 
