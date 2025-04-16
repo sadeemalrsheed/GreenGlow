@@ -238,23 +238,24 @@ def device_status():
 
 @app.route('/device-moisture')
 def get_moisture():
-    arduino = get_arduino()
-    if arduino:
-        try:
-            arduino.write(b'READ\n')
-            data = arduino.readline().decode().strip()
-            arduino.close()
+    try:
+        arduino = serial.Serial('COM3', 9600, timeout=2)  # COM3 or check in Device Manager
+        time.sleep(2)  # Wait for Arduino to get ready
 
-            print("Arduino said:", data)  # 🧪 Add this to debug
+        arduino.write(b'READ\n')
+        data = arduino.readline().decode().strip()
+        arduino.close()
 
-            if data.isdigit():
-                return f"{data}%"
-            else:
-                return "Sensor Error"
-        except Exception as e:
-            print("Reading error:", e)
-            return "Sensor Error"
-    return "Sensor Not Connected"
+        print(f"🌱 Arduino Response: {data}")  # Debug print
+
+        if data.isdigit():
+            return f"{data}%"
+        return "Sensor Error"
+
+    except Exception as e:
+        print("❌ Error:", e)
+        return "Sensor Error"
+
 
 
 @app.route('/water', methods=['POST'])
