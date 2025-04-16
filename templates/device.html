@@ -51,16 +51,26 @@
   </div>
 
   <script>
+    let alreadyWatered = false;
+
     function updateMoisture() {
       fetch('/device-moisture')
         .then(response => response.text())
         .then(data => {
-          document.getElementById('moisture').innerText = data + '%';
+          const moistureEl = document.getElementById('moisture');
+          const moistureVal = parseInt(data);
+          if (!isNaN(moistureVal)) {
+            moistureEl.innerText = moistureVal + '%';
 
-          // Auto-water only if moisture is below 20%
-          const moistureValue = parseInt(data);
-          if (!isNaN(moistureValue) && moistureValue < 20) {
-            fetch('/water', { method: 'POST' });
+            // Only water automatically once if moisture < 3%
+            if (moistureVal < 3 && !alreadyWatered) {
+              alreadyWatered = true;
+              fetch('/water', { method: 'POST' });
+              console.log("💧 Auto-watering triggered because moisture < 3%");
+              setTimeout(() => { alreadyWatered = false }, 30000);  // allow auto-watering again after 30s
+            }
+          } else {
+            moistureEl.innerText = 'Sensor Error';
           }
         })
         .catch(() => {
@@ -80,6 +90,7 @@
   </script>
 </body>
 </html>
+
 
 
 
