@@ -14,7 +14,7 @@ from flask_apscheduler import APScheduler
 
 from data import disease_map, details_map
 
-
+import serial
 
 
 if not os.path.exists('model.h5'):
