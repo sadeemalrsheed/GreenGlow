@@ -235,26 +235,25 @@ def get_arduino():
 @app.route('/device')
 def device_status():
     return render_template('device.html')  # Just load the page normally
-
 @app.route('/device-moisture')
 def get_moisture():
-    try:
-        arduino = serial.Serial('COM3', 9600, timeout=2)  # COM3 or check in Device Manager
-        time.sleep(2)  # Wait for Arduino to get ready
+    arduino = get_arduino()
+    if arduino:
+        try:
+            arduino.write(b'READ\n')
+            data = arduino.readline().decode().strip()
+            arduino.close()
 
-        arduino.write(b'READ\n')
-        data = arduino.readline().decode().strip()
-        arduino.close()
+            print("Arduino said:", data)  # Optional debug
 
-        print(f"🌱 Arduino Response: {data}")  # Debug print
-
-        if data.isdigit():
-            return f"{data}%"
-        return "Sensor Error"
-
-    except Exception as e:
-        print("❌ Error:", e)
-        return "Sensor Error"
+            if data.isdigit():
+                return f"{data}%"
+            else:
+                return ""  # ❌ no error message shown to user
+        except Exception as e:
+            print("Reading error:", e)
+            return ""  # ❌ no error message shown to user
+    return ""  # ❌ no error message shown to user
 
 
 

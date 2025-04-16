@@ -1,42 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Green Glow</title>
+  <meta charset="UTF-8">
+  <title>Green Glow Device</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body style="background-color:#e6ffee;">
+  <style>
+    body {
+      background-color: #e6ffee;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
 
+    .device-box {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    .btn-green {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border-radius: 15px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .btn-green:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
   <div class="device-box">
     <h1>🌱 Green Glow</h1>
-    <p>Soil Moisture: <strong id="moisture">Reading From the Sensor ...</strong></p>
+    <p>Soil Moisture: <strong id="moisture">Reading...</strong></p>
 
-    <button class="btn-green" onclick="waterPlant()">💧 Water Plant</button>
+    <button id="waterBtn" class="btn-green" onclick="manualWater()">
+      💧 Water Plant
+    </button>
   </div>
 
   <script>
+    let lastAutoWaterTime = 0;
+
     function updateMoisture() {
       fetch('/device-moisture')
-        .then(res => res.text())
+        .then(response => response.text())
         .then(data => {
-          document.getElementById('moisture').innerText = data;
+          const moistureValue = parseInt(data);
+          const moistureText = isNaN(moistureValue) ? data : `${moistureValue}%`;
+          document.getElementById('moisture').innerText = moistureText;
+
+          const now = Date.now();
+
+          if (!isNaN(moistureValue) && moistureValue < 3 && now - lastAutoWaterTime > 10000) {
+            lastAutoWaterTime = now;
+            fetch('/water', { method: 'POST' });
+          }
         })
         .catch(() => {
           document.getElementById('moisture').innerText = 'Sensor Error';
         });
     }
 
-    function waterPlant() {
+    function manualWater() {
       fetch('/water', { method: 'POST' })
-        .then(() => alert("Watering... 🌊"))
-        .catch(() => alert("Could not water plant ❌"));
+        .then(() => {
+          alert("Water command sent! 💧");
+        });
     }
 
-    setInterval(updateMoisture, 2000);  // Update every 2 seconds
-    updateMoisture();  // Initial call
+    // Start
+    setInterval(updateMoisture, 2000);
+    updateMoisture();
   </script>
 </body>
 </html>
-
 
 
 
