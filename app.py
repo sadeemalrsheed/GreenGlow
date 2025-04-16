@@ -238,22 +238,18 @@ def device_status():
 
 @app.route('/device-moisture')
 def get_moisture():
-    try:
-        arduino = serial.Serial('COM3', 9600, timeout=2)
-        arduino.write(b'READ\n')
-        time.sleep(1)  # give Arduino time to respond
-        data = arduino.readline().decode().strip()
-        arduino.close()
+    arduino = get_arduino()
+    if arduino:
+        try:
+            arduino.write(b'READ\n')
+            data = arduino.readline().decode().strip()
+            arduino.close()
+            if data.isdigit():
+                return f"{data}%"  # ← important: return plain percentage string!
+        except:
+            return ""  # ← empty to avoid showing error
+    return ""  # ← also empty if no connection
 
-        print("Moisture received:", data)  # For debug
-
-        if data.isdigit():
-            return f"{data}%"
-        else:
-            return ""
-    except Exception as e:
-        print("Error reading from Arduino:", e)
-        return ""
 
 
 
